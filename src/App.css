@@ -39,9 +39,9 @@
 }
 
 .asset-card__top {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.35rem;
   align-items: flex-start;
 }
 
@@ -51,7 +51,7 @@
 }
 
 .asset-card__symbol {
-  font-size: 1.75rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   color: #221711;
@@ -59,7 +59,7 @@
 
 .asset-card__name {
   margin-top: 0.4rem;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   color: #756556;
 }
 
@@ -68,13 +68,26 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 0.35rem;
+  min-width: 0;
+  padding-top: 0.35rem;
 }
 
 .asset-card__price {
-  font-size: 2.75rem;
+  font-size: 1.75rem;
   line-height: 1;
   font-weight: 700;
   color: #221711;
+  white-space: nowrap;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.asset-card__price--tight {
+  font-size: 1.5rem;
+}
+
+.asset-card__price--compact {
+  font-size: 1.3rem;
 }
 
 .asset-card__change {
@@ -141,7 +154,7 @@
   }
 
   .asset-card__top {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
   .asset-card__price-block {
@@ -149,10 +162,16 @@
   }
 
   .asset-card__symbol {
-    font-size: 1.45rem;
+    font-size: 1rem;
   }
 
   .asset-card__price {
-    font-size: 2.2rem;
+    font-size: 1.5rem;
+    text-align: left;
+  }
+
+  .asset-card__price--tight,
+  .asset-card__price--compact {
+    font-size: 1.3rem;
   }
 }

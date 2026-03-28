@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000'
+const REFRESH_INTERVAL_MS = 15 * 60 * 1000
 
 // `symbol` is what we show in the UI, while `apiSymbol` is the code the backend
 // sends to EODHD for live prices.
@@ -16,15 +17,47 @@ const assets = [
   { symbol: 'XAG/USD', apiSymbol: 'XAGUSD.FOREX', name: 'Silver / US Dollar' },
 ]
 
-function formatPrice(value) {
+function getPricePrecision(symbol) {
+  if (symbol === 'XAU/USD') {
+    return 2
+  }
+
+  if (symbol === 'XAG/USD') {
+    return 3
+  }
+
+  if (symbol === 'EUR/USD') {
+    return 4
+  }
+
+  return 4
+}
+
+function formatPrice(value, symbol) {
   if (typeof value !== 'number' || Number.isNaN(value)) {
     return '--'
   }
 
+  const precision = getPricePrecision(symbol)
+
   return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 5,
+    minimumFractionDigits: precision,
+    maximumFractionDigits: precision,
   }).format(value)
+}
+
+function getPriceSizeClass(value, symbol) {
+  const formattedPrice = formatPrice(value, symbol)
+
+  if (formattedPrice.length >= 9) {
+    return 'asset-card__price--compact'
+  }
+
+  if (formattedPrice.length >= 7) {
+    return 'asset-card__price--tight'
+  }
+
+  return ''
 }
 
 function formatChangePercent(value) {
@@ -84,7 +117,15 @@ function App() {
         const payload = await response.json()
 
         if (isMounted) {
-          setQuotesBySymbol(payload.quotes ?? {})
+          setQuotesBySymbol((currentQuotes) => ({
+            ...currentQuotes,
+            ...(payload.quotes ?? {}),
+          }))
+          if (payload.errors && Object.keys(payload.errors).length > 0) {
+            setError('Some symbols could not be loaded. Check the backend response for details.')
+          } else {
+            setError('')
+          }
         }
       } catch (fetchError) {
         if (isMounted) {
@@ -98,7 +139,7 @@ function App() {
     }
 
     fetchQuotes()
-    const intervalId = window.setInterval(fetchQuotes, 60000)
+    const intervalId = window.setInterval(fetchQuotes, REFRESH_INTERVAL_MS)
 
     return () => {
       isMounted = false
@@ -116,6 +157,7 @@ function App() {
           // backend data to the correct card.
           const quote = quotesBySymbol[asset.apiSymbol]
           const changeTone = getChangeTone(quote?.changePercent)
+          const priceSizeClass = getPriceSizeClass(quote?.price, asset.symbol)
 
           return (
             <button
@@ -131,7 +173,9 @@ function App() {
                 </div>
 
                 <div className="asset-card__price-block">
-                  <span className="asset-card__price">{formatPrice(quote?.price)}</span>
+                  <span className={`asset-card__price ${priceSizeClass}`.trim()}>
+                    {formatPrice(quote?.price, asset.symbol)}
+                  </span>
                   <span className={`asset-card__change asset-card__change--${changeTone}`}>
                     {formatChangePercent(quote?.changePercent)}
                   </span>
