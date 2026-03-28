@@ -1,12 +1,22 @@
 import { useEffect, useState } from 'react'
+import { Loader2 } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import TradingViewWidget from '../components/TradingViewWidget'
 import { assets, formatChangePercent, formatPrice, getChangeTone } from '../data/assets'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000'
 
+function toTitleCase(value) {
+  if (!value) {
+    return ''
+  }
+
+  return value.charAt(0).toUpperCase() + value.slice(1)
+}
+
 function AssetDetailPage({ quotesBySymbol }) {
   const { slug } = useParams()
+  // Match the URL slug back to the shared asset metadata entry.
   const asset = assets.find((item) => item.slug === slug)
   const [commentary, setCommentary] = useState(null)
   const [isCommentaryLoading, setIsCommentaryLoading] = useState(true)
@@ -39,6 +49,8 @@ function AssetDetailPage({ quotesBySymbol }) {
           setCommentaryError('')
         }
 
+        // The backend builds the technical snapshot and macro context, then asks
+        // Gemini to return structured commentary JSON for this asset.
         const response = await fetch(`${API_BASE_URL}/api/ai/commentary`, {
           method: 'POST',
           headers: {
@@ -100,6 +112,8 @@ function AssetDetailPage({ quotesBySymbol }) {
         </div>
 
         <section className="detail-grid">
+          {/* Quick facts give the page some immediately readable context before
+              the user gets into the chart and AI commentary below. */}
           <article className="detail-card">
             <p className="detail-card__label">Instrument</p>
             <p className="detail-card__value">{asset.symbol}</p>
@@ -143,7 +157,10 @@ function AssetDetailPage({ quotesBySymbol }) {
           </div>
 
           {isCommentaryLoading && (
-            <p className="ai-panel__status">Generating commentary for {asset.symbol}...</p>
+            <div className="ai-panel__status ai-panel__status--loading">
+              <Loader2 className="status-spinner" size={18} aria-hidden="true" />
+              <p>Generating commentary for {asset.symbol}...</p>
+            </div>
           )}
 
           {!isCommentaryLoading && commentaryError && (
@@ -151,10 +168,12 @@ function AssetDetailPage({ quotesBySymbol }) {
           )}
 
           {!isCommentaryLoading && commentary && (
+            // Gemini returns structured fields so the UI can render each part of
+            // the market note in a predictable layout.
             <div className="ai-panel__grid">
               <article className="ai-panel__card">
                 <p className="detail-card__label">Market Bias</p>
-                <p className="detail-card__value">{commentary.bias}</p>
+                <p className="detail-card__value">{toTitleCase(commentary.bias)}</p>
               </article>
               <article className="ai-panel__card">
                 <p className="detail-card__label">Confidence</p>

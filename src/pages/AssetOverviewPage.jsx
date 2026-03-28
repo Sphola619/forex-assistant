@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Loader2 } from 'lucide-react'
 import {
   assets,
   formatChangePercent,
@@ -10,15 +11,19 @@ import {
 function AssetOverviewPage({ quotesBySymbol, isLoading, error }) {
   return (
     <main className="app-shell">
-      <h1>Forex Assistant</h1>
+      <h1>Market Analysis Assistant</h1>
 
       <section className="asset-grid">
         {assets.map((asset) => {
+          // Quotes arrive keyed by backend symbol, so we look them up that way
+          // and then render the prettier display symbol on the card.
           const quote = quotesBySymbol[asset.apiSymbol]
           const changeTone = getChangeTone(quote?.changePercent)
           const priceSizeClass = getPriceSizeClass(quote?.price, asset.symbol)
 
           return (
+            // Each card is a link so selecting a market routes to the detail
+            // page instead of just toggling local state.
             <Link key={asset.symbol} to={`/asset/${asset.slug}`} className="asset-card">
               <div className="asset-card__top">
                 <div>
@@ -41,7 +46,12 @@ function AssetOverviewPage({ quotesBySymbol, isLoading, error }) {
       </section>
 
       <div className="status-row">
-        {isLoading && <p className="status-message">Loading live market prices...</p>}
+        {isLoading && (
+          <div className="status-message status-message--loading">
+            <Loader2 className="status-spinner" size={18} aria-hidden="true" />
+            <p>Loading live market prices...</p>
+          </div>
+        )}
         {!isLoading && error && <p className="status-message status-message--error">{error}</p>}
         <p className="status-message">Results for XAU/USD and XAG/USD use end-of-day fallback.</p>
       </div>

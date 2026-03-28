@@ -1,3 +1,5 @@
+// This file keeps all asset metadata and formatting helpers in one place so the
+// overview page and detail page stay consistent.
 export const assets = [
   {
     slug: 'usdzar',
@@ -13,7 +15,15 @@ export const assets = [
     apiSymbol: 'EURZAR.FOREX',
     name: 'Euro / South African Rand',
     category: 'Forex',
-    tradingViewSymbol: 'FX:EURZAR',
+    tradingViewSymbol: 'OANDA:EURZAR',
+  },
+  {
+    slug: 'gbpzar',
+    symbol: 'GBPZAR',
+    apiSymbol: 'GBPZAR.FOREX',
+    name: 'British Pound / South African Rand',
+    category: 'Forex',
+    tradingViewSymbol: 'OANDA:GBPZAR',
   },
   {
     slug: 'usdchf',
@@ -66,6 +76,7 @@ export const assets = [
 ]
 
 export function getPricePrecision(symbol) {
+  // A few markets read better with custom decimal precision in the UI.
   if (symbol === 'XAU/USD') return 2
   if (symbol === 'XAG/USD') return 3
   if (symbol === 'EUR/USD') return 4
@@ -105,6 +116,7 @@ export function getChangeTone(value) {
 }
 
 export function getPriceSizeClass(value, symbol) {
+  // Long formatted prices need a smaller font size to avoid crowding the card.
   const formattedPrice = formatPrice(value, symbol)
 
   if (formattedPrice.length >= 9) return 'asset-card__price--compact'

@@ -14,6 +14,8 @@ function TradingViewWidget({ symbol }) {
     widget.className = 'tradingview-widget-container__widget'
 
     const script = document.createElement('script')
+    // TradingView widgets are injected by script rather than rendered as normal
+    // React components, so we rebuild the embed whenever the symbol changes.
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'
     script.type = 'text/javascript'
     script.async = true
