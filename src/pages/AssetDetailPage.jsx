@@ -62,8 +62,7 @@ function AssetDetailPage({ quotesBySymbol }) {
         const payload = await response.json()
 
         if (!response.ok) {
-          const errorMessage = [payload.error, payload.details].filter(Boolean).join(' ')
-          throw new Error(errorMessage || 'Unable to load AI commentary.')
+          throw new Error(payload.error || 'Unable to load AI commentary.')
         }
 
         if (isMounted) {
