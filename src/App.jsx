@@ -6,7 +6,8 @@ import AssetDetailPage from './pages/AssetDetailPage'
 import { assets } from './data/assets'
 import { Moon, Sun } from 'lucide-react'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000' // fallback for production build if env var is not set
+
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000
 const THEME_STORAGE_KEY = 'forex-assistant-theme'
 
